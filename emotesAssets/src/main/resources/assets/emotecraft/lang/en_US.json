@@ -50,7 +50,7 @@
   "emotecraft.different_server": "Server has a different version of Emotecraft installed. Other users may not see your emotes play correctly.",
   "emotecraft.only_proxy": "Only proxy streaming is available.",
   "key.emotecraft.fastchoose": "Open Emote Wheel",
-  "key.emotecraft.debug": "Play 'Experiment' Emote",
+  "key.emotecraft.playsameanim": "Play the same animation",
   "key.emotecraft.stop": "Stop Playing Emote",
   "emotecraft.openFolder": "Open Emotes Folder",
   "emotecraft.otherconfig.quark": "Enable Quark Deserializer",
@@ -71,5 +71,6 @@
   "emotecraft.export.done.json": "JSON export done!",
   "emotecraft.export.done.emotecraft": ".emotecraft export done!",
   "emotecraft.song_too_big_to_send": "Song is too big to be sent to server. Sending emote only...",
-  "emotecraft.cant.override.forced": "You're forced to play the current emote, it can't be changed."
+  "emotecraft.cant.override.forced": "You're forced to play the current emote, it can't be changed.",
+  "key.emotecraft.playsameanim.subtitle": "Press '%s' to play this animation from your library!"
 }

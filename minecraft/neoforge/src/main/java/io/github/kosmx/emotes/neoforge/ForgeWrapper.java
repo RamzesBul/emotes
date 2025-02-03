@@ -6,12 +6,8 @@ import io.github.kosmx.emotes.common.CommonData;
 import io.github.kosmx.emotes.executor.EmoteInstance;
 import io.github.kosmx.emotes.neoforge.executor.ForgeEmotesMain;
 import io.github.kosmx.emotes.main.MainLoader;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -22,21 +18,15 @@ import java.util.logging.Level;
 
 @Mod("emotecraft")
 public class ForgeWrapper {
-
     public static final Logger logger = LoggerFactory.getLogger(CommonData.MOD_ID);
 
-
-    public ForgeWrapper(ModContainer container, IEventBus modEventBus){
+    public ForgeWrapper() {
         EmoteInstance.instance = new ForgeEmotesMain();
 
         MainLoader.main(null);
 
         NeoForge.EVENT_BUS.register(this);
-        if(FMLLoader.getDist() == Dist.CLIENT){
-            ClientInit.initClient(container, modEventBus);
-        }
     }
-
 
     @SubscribeEvent
     public void commandRegister(RegisterCommandsEvent event) {

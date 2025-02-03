@@ -151,6 +151,24 @@ public class EmoteHolder implements Supplier<UUID> {
         return list.get(uuid);
     }
 
+    public static @Nullable EmoteHolder getEmoteFromAnimation(KeyframeAnimation animation) {
+        if (animation == null) {
+            return null;
+        }
+
+        EmoteHolder fast = getEmoteFromUuid(animation.getUuid());
+        if (fast != null && fast.emote != null && fast.emote.equals(animation)) {
+            return fast;
+        }
+
+        for (EmoteHolder holder : EmoteHolder.list) {
+            if (holder.emote != null && holder.emote.equals(animation)) {
+                return holder;
+            }
+        }
+        return null;
+    }
+
     public static void addEmoteToList(Iterable<KeyframeAnimation> emotes){
         for(KeyframeAnimation emote : emotes){
             EmoteHolder.list.add(new EmoteHolder(emote));
@@ -185,20 +203,20 @@ public class EmoteHolder implements Supplier<UUID> {
         list.add(hold);
     }
 
-    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player){
-        return playEmote(emote, player, null);
+    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player) {
+        return playEmote(emote, player, 0);
     }
 
     /**
      * Check if the emote can be played by the main player
      * @param emote emote to play
      * @param player who is the player
-     * @param emoteHolder emote holder object
+     * @param tick first tick
      * @return could be played
      */
-    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, @Nullable EmoteHolder emoteHolder){
+    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick) {
         if(canPlayEmote(player)){
-            return ClientEmotePlay.clientStartLocalEmote(emote);
+            return ClientEmotePlay.clientStartLocalEmote(emote, tick);
         }else{
             return false;
         }
@@ -223,8 +241,12 @@ public class EmoteHolder implements Supplier<UUID> {
         return ! (player.emotecraft$emotesGetPos().distanceTo(new Vec3d(prevPos.getX(), MathHelper.lerp(((ClientConfig)EmoteInstance.config).yRatio.get(), prevPos.getY(), player.emotecraft$emotesGetPos().getY()), prevPos.getZ())) > ((ClientConfig)EmoteInstance.config).stopThreshold.get());
     }
 
-    public boolean playEmote(IEmotePlayerEntity playerEntity){
-        return playEmote(this.emote, playerEntity, this);
+    public boolean playEmote(IEmotePlayerEntity playerEntity) {
+        return playEmote(playerEntity, 0);
+    }
+
+    public boolean playEmote(IEmotePlayerEntity playerEntity, int tick) {
+        return playEmote(this.emote, playerEntity, tick);
     }
 
     /**
