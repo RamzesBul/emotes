@@ -11,18 +11,20 @@ public class TimeDataPacket extends AbstractNetworkPacket {
 
     @Override
     public byte getVer() {
-        return 0;
+        return 1;
     }
 
     @Override
     public boolean read(ByteBuffer byteBuffer, NetData config, int version) throws IOException {
         config.startTime = byteBuffer.getLong();
+        config.offsetTime = byteBuffer.get() != 0x00;
         return true;
     }
 
     @Override
     public void write(ByteBuffer byteBuffer, NetData config) throws IOException {
         byteBuffer.putLong(config.startTime);
+        byteBuffer.put(config.offsetTime ? (byte) 0x01 : (byte) 0x00);
     }
 
     @Override
@@ -32,6 +34,6 @@ public class TimeDataPacket extends AbstractNetworkPacket {
 
     @Override
     public int calculateSize(NetData config) {
-        return 8;
+        return 9;
     }
 }

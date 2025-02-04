@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.UUIDMap;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.main.EmoteHolder;
 import io.github.kosmx.emotes.main.network.ClientEmotePlay;
 import net.minecraft.commands.CommandBuildContext;
@@ -38,7 +39,7 @@ public class ClientCommands {
                 .then(literal("play")
                         .then(argument("emote", StringArgumentType.string()).suggests(new EmoteArgumentHelper())
                                 .executes(ctx -> {
-                                    if (!ClientEmotePlay.clientStartLocalEmote(EmoteArgumentHelper.getEmote(ctx, "emote"))) {
+                                    if (!ClientEmotePlay.clientStartLocalEmote(new PlayingAnimationData(EmoteArgumentHelper.getEmote(ctx, "emote")))) {
                                         throw new SimpleCommandExceptionType(FORCED).create();
                                     }
                                     return 0;

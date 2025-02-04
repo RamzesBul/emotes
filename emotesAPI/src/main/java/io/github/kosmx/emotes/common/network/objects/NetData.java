@@ -48,7 +48,9 @@ public final class NetData {
     //On play, it can not be stopped by the player
     //On stop, the server stops it not because invalid but because event stopped it
     public boolean isForced = false;
+
     public long startTime = -1;
+    public boolean offsetTime = false;
 
     /**
      * net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket#MAX_PAYLOAD_SIZE
@@ -95,11 +97,13 @@ public final class NetData {
 
     public Instant startInstant() {
         if (this.startTime < 0) {
-            return null; // Not set
+            this.offsetTime = false;
+            return Instant.now(); // Not set
         }
         Instant instant = Instant.ofEpochMilli(this.startTime);
         if (instant.isAfter(Instant.now())) {
-            return null; // from the future?
+            this.offsetTime = false;
+            return Instant.now(); // from the future?
         }
         return instant;
     }

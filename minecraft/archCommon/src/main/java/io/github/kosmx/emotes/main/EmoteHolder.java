@@ -7,6 +7,7 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.MathHelper;
 import dev.kosmx.playerAnim.core.util.UUIDMap;
 import dev.kosmx.playerAnim.core.util.Vec3d;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.api.proxy.AbstractNetworkInstance;
 import io.github.kosmx.emotes.api.proxy.INetworkInstance;
 import io.github.kosmx.emotes.executor.EmoteInstance;
@@ -203,10 +204,6 @@ public class EmoteHolder implements Supplier<UUID> {
         list.add(hold);
     }
 
-    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player) {
-        return playEmote(emote, player, 0);
-    }
-
     /**
      * Check if the emote can be played by the main player
      * @param emote emote to play
@@ -214,13 +211,9 @@ public class EmoteHolder implements Supplier<UUID> {
      * @param tick first tick
      * @return could be played
      */
-    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick) {
-        return EmoteHolder.playEmote(emote, player, tick, false);
-    }
-
-    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick, boolean time) {
+    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick, boolean offsetTime) {
         if(canPlayEmote(player)){
-            return ClientEmotePlay.clientStartLocalEmote(emote, tick, time);
+            return ClientEmotePlay.clientStartLocalEmote(new PlayingAnimationData(emote, tick, offsetTime, false));
         }else{
             return false;
         }
@@ -253,8 +246,8 @@ public class EmoteHolder implements Supplier<UUID> {
         return playEmote(playerEntity, tick, false);
     }
 
-    public boolean playEmote(IEmotePlayerEntity playerEntity, int tick, boolean time) {
-        return playEmote(this.emote, playerEntity, tick, time);
+    public boolean playEmote(IEmotePlayerEntity playerEntity, int tick, boolean offsetTime) {
+        return playEmote(this.emote, playerEntity, tick, offsetTime);
     }
 
     /**
@@ -296,7 +289,9 @@ public class EmoteHolder implements Supplier<UUID> {
             UUID uuid = ((ClientConfig)EmoteInstance.config).emoteKeyMap.getL(key);
             if(uuid != null){
                 EmoteHolder emoteHolder = list.get(uuid);
-                if(emoteHolder != null)ClientEmotePlay.clientStartLocalEmote(emoteHolder);
+                if(emoteHolder != null)ClientEmotePlay.clientStartLocalEmote(
+                        new PlayingAnimationData(emoteHolder.getEmote())
+                );
             }
         }
     }

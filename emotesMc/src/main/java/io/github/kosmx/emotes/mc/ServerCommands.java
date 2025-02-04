@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.api.events.server.ServerEmoteAPI;
 import io.github.kosmx.emotes.server.serializer.UniversalEmoteSerializer;
 import net.minecraft.commands.CommandBuildContext;
@@ -54,23 +55,26 @@ public final class ServerCommands {
                                     var emote = EmoteArgumentProvider.getEmote(context, "emote");
                                     if (!admin && ServerEmoteAPI.isForcedEmote(player))
                                         throw new SimpleCommandExceptionType(Component.literal("Can't stop forced emote without admin rights")).create();
-                                    ServerEmoteAPI.playEmote(player, emote, false);
+                                    ServerEmoteAPI.playEmote(player, new PlayingAnimationData(emote, false));
                                     return 0;
                                 })
                                 .then(argument("player", EntityArgument.players()).requires(ctx -> ctx.hasPermission(2))
                                         .executes(context -> {
-                                            ServerEmoteAPI.playEmote(
-                                                    EntityArgument.getPlayer(context, "player").getUUID(),
-                                                    EmoteArgumentProvider.getEmote(context, "emote"),
-                                                    false);
+                                            ServerEmoteAPI.playEmote(EntityArgument.getPlayer(
+                                                    context, "player").getUUID(), new PlayingAnimationData(
+                                                            EmoteArgumentProvider.getEmote(context, "emote")
+                                            ));
                                             return 0;
                                         })
                                         .then(argument("forced", BoolArgumentType.bool())
                                                 .executes(context -> {
                                                     ServerEmoteAPI.playEmote(
                                                             EntityArgument.getPlayer(context, "player").getUUID(),
-                                                            EmoteArgumentProvider.getEmote(context, "emote"),
-                                                            BoolArgumentType.getBool(context, "forced"));
+                                                            new PlayingAnimationData(
+                                                                    EmoteArgumentProvider.getEmote(context, "emote"),
+                                                                    BoolArgumentType.getBool(context, "forced")
+                                                            )
+                                                    );
                                                     return 0;
                                                 })
                                         )
@@ -83,18 +87,14 @@ public final class ServerCommands {
                             var player = context.getSource().getPlayerOrException().getUUID();
                             boolean canStop = admin || !ServerEmoteAPI.isForcedEmote(player);
                             if (canStop) {
-                                ServerEmoteAPI.playEmote(player, null, false);
+                                ServerEmoteAPI.playEmote(player, null);
                                 return 0;
                             }
                             throw new SimpleCommandExceptionType(Component.literal("Can't stop forced emote without admin rights")).create();
                         })
                         .then(argument("player", EntityArgument.players()).requires(ctx -> ctx.hasPermission(2))
                                 .executes(context -> {
-                                    ServerEmoteAPI.playEmote(
-                                            EntityArgument.getPlayer(context, "player").getUUID(),
-                                            null,
-                                            false
-                                    );
+                                    ServerEmoteAPI.playEmote(EntityArgument.getPlayer(context, "player").getUUID(), null);
                                     return 0;
                                 })
                         )

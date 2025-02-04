@@ -1,8 +1,8 @@
 package io.github.kosmx.emotes.executor.emotePlayer;
 
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.Vec3d;
 
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
@@ -11,13 +11,16 @@ public interface IEmotePlayerEntity {
 
     //void init();
 
-    void emotecraft$playEmote(KeyframeAnimation emote, int tick, boolean isForced);
+    void emotecraft$playEmote(PlayingAnimationData data);
 
     boolean isPlayingEmote();
 
 
     @Nullable
     IEmotePlayer emotecraft$getEmote();
+
+    @Nullable
+    PlayingAnimationData emotecraft$getPlayingData();
 
 
     void stopEmote(UUID emoteID);

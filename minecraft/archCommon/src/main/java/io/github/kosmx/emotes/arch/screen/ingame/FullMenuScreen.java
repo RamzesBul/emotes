@@ -1,5 +1,6 @@
 package io.github.kosmx.emotes.arch.screen.ingame;
 
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.arch.gui.widgets.EmoteListWidget;
 import io.github.kosmx.emotes.arch.screen.EmoteMenu;
 import io.github.kosmx.emotes.arch.screen.components.EmoteSubScreen;
@@ -41,7 +42,9 @@ public class FullMenuScreen extends EmoteSubScreen {
     @Override
     protected void onPressed(EmoteListWidget.EmoteEntry selected) {
         if (selected != null) {
-            ClientEmotePlay.clientStartLocalEmote(selected.getEmote());
+            ClientEmotePlay.clientStartLocalEmote(new PlayingAnimationData(
+                    selected.getEmote().getEmote()
+            ));
 
             if (this.lastScreen instanceof FastMenuScreen fast) {
                 this.lastScreen = fast.parent;

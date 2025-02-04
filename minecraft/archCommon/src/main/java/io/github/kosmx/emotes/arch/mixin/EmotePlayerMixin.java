@@ -3,9 +3,9 @@ package io.github.kosmx.emotes.arch.mixin;
 import com.mojang.authlib.GameProfile;
 import dev.kosmx.playerAnim.api.IPlayer;
 import dev.kosmx.playerAnim.api.layered.AnimationContainer;
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.data.opennbs.format.Layer;
 import dev.kosmx.playerAnim.core.util.Vec3d;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.arch.emote.EmotePlayImpl;
 import io.github.kosmx.emotes.main.emotePlay.EmotePlayer;
 import io.github.kosmx.emotes.main.mixinFunctions.IPlayerEntity;
@@ -26,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.time.Instant;
 import java.util.UUID;
 
 //Mixin it into the player is way easier than storing it somewhere else...
@@ -41,7 +43,7 @@ public abstract class EmotePlayerMixin extends Player implements IPlayerEntity {
     private AnimationContainer<EmotePlayer> emotecraftEmoteContainer = new AnimationContainer<>(null);
 
     @Unique
-    private boolean isForced = false;
+    private PlayingAnimationData emotecraft$data;
 
     public EmotePlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
         super(level, blockPos, f, gameProfile);
@@ -54,10 +56,12 @@ public abstract class EmotePlayerMixin extends Player implements IPlayerEntity {
     }
 
     @Override
-    public void emotecraft$playEmote(KeyframeAnimation emote, int t, boolean isForced) {
-        this.emotecraftEmoteContainer.setAnim(new EmotePlayImpl(emote, this::emotecraft$noteConsumer, t));
+    public void emotecraft$playEmote(PlayingAnimationData data) {
+        this.emotecraft$data = data;
+        this.emotecraftEmoteContainer.setAnim(new EmotePlayImpl(
+                data.currentEmote(), this::emotecraft$noteConsumer, data.currentTick(Instant.now())
+        ));
         this.initEmotePerspective(emotecraftEmoteContainer.getAnim());
-        if (this.isMainPlayer()) this.isForced = isForced;
     }
 
     @Unique
@@ -102,6 +106,11 @@ public abstract class EmotePlayerMixin extends Player implements IPlayerEntity {
     }
 
     @Override
+    public @Nullable PlayingAnimationData emotecraft$getPlayingData() {
+        return this.emotecraft$data;
+    }
+
+    @Override
     public UUID emotes_getUUID() {
         return this.getUUID();
     }
@@ -143,6 +152,6 @@ public abstract class EmotePlayerMixin extends Player implements IPlayerEntity {
 
     @Override
     public boolean emotecraft$isForcedEmote() {
-        return this.isPlayingEmote() && this.isForced;
+        return this.isPlayingEmote() && this.emotecraft$data.forced();
     }
 }

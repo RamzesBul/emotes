@@ -12,7 +12,6 @@ import io.github.kosmx.emotes.main.network.ClientEmotePlay;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -25,15 +24,15 @@ public interface IPlayerEntity extends IEmotePlayerEntity {
     default void initEmotePlay(){
         PlayingAnimationData data = ClientEmotePlay.getEmoteForUUID(this.emotes_getUUID());
         if(data != null){
-            int tick = data.calculatedTick(Instant.now());
-            ClientEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(data.currentEmote(), tick, this.emotes_getUUID());
-            this.emotecraft$playEmote(data.currentEmote(), tick, data.forced());
+            ClientEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(data, this.emotes_getUUID());
+            this.emotecraft$playEmote(data);
         }
         if(!this.isMainPlayer() && TmpGetters.getClientMethods().getMainPlayer() != null && TmpGetters.getClientMethods().getMainPlayer().isPlayingEmote()){
-            IPlayerEntity playerEntity = TmpGetters.getClientMethods().getMainPlayer();
-            ClientEmotePlay.clientRepeatLocalEmote(playerEntity.emotecraft$getEmote().getData(), playerEntity.emotecraft$getEmote().getTick(), this.emotes_getUUID());
+            data = TmpGetters.getClientMethods().getMainPlayer().emotecraft$getPlayingData();
+            if (data != null) {
+                ClientEmotePlay.clientRepeatLocalEmote(data, this.emotes_getUUID());
+            }
         }
-
     }
 
     default void initEmotePerspective(EmotePlayer emotePlayer){

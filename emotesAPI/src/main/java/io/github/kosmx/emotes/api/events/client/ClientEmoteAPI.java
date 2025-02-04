@@ -2,6 +2,7 @@ package io.github.kosmx.emotes.api.events.client;
 
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
@@ -15,21 +16,11 @@ public abstract class ClientEmoteAPI {
 
     /**
      * Start playing an emote.
-     * @param animation animation, <code>null</code> to stop playing.
-     * @return          Can the emote be played: this doesn't check server-side verification
+     * @param data animation data, <code>null</code> to stop playing.
+     * @return Can the emote be played: this doesn't check server-side verification
      */
-    public static boolean playEmote(@Nullable KeyframeAnimation animation) {
-        return ClientEmoteAPI.playEmote(animation, 0);
-    }
-
-    /**
-     * Start playing an emote.
-     * @param animation animation, <code>null</code> to stop playing.
-     * @param tick First tick
-     * @return          Can the emote be played: this doesn't check server-side verification
-     */
-    public static boolean playEmote(@Nullable KeyframeAnimation animation, int tick) {
-        return INSTANCE.playEmoteImpl(animation, tick);
+    public static boolean playEmote(@Nullable PlayingAnimationData data) {
+        return INSTANCE.playEmoteImpl(data);
     }
 
     /**
@@ -45,7 +36,7 @@ public abstract class ClientEmoteAPI {
 
     protected static ClientEmoteAPI INSTANCE;
 
-    protected abstract boolean playEmoteImpl(KeyframeAnimation animation, int tick);
+    protected abstract boolean playEmoteImpl(PlayingAnimationData data);
 
     protected abstract Collection<KeyframeAnimation> clientEmoteListImpl();
 }

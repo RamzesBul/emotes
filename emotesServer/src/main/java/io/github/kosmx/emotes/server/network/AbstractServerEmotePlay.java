@@ -162,11 +162,12 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
      * @param player source player
      */
     protected void streamEmote(NetData data, P player, boolean isForced, boolean isFromPlayer) {
-        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(data.emoteData, data.tick, data.startInstant(), isForced);
-        ServerEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(data.emoteData, data.tick, getUUIDFromPlayer(player));
         data.isForced = isForced;
         data.player = getUUIDFromPlayer(player);
         data.strictSizeLimit = false;
+        PlayingAnimationData playingData = new PlayingAnimationData(data);
+        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(playingData);
+        ServerEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(playingData, getUUIDFromPlayer(player));
         UUID bedrockEmoteID = bedrockEmoteMap.getBeEmote(data.emoteData.getUuid());
         GeyserEmotePacket geyserEmotePacket = null;
         if(bedrockEmoteID != null){
@@ -182,7 +183,7 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
 
     protected void stopEmote(P player, @Nullable NetData originalMessage) {
         PlayingAnimationData emote = getPlayerNetworkInstance(player).getEmoteTracker().getPlayedEmote();
-        getPlayerNetworkInstance(player).getEmoteTracker().removePlayedEmote();
+        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(null);
         if (emote != null) {
             ServerEmoteEvents.EMOTE_STOP_BY_USER.invoker().onStopEmote(emote.currentEmote().getUuid(), getUUIDFromPlayer(player));
             NetData data = new EmotePacket.Builder().configureToSendStop(emote.currentEmote().getUuid(), getUUIDFromPlayer(player)).build().data;
@@ -215,14 +216,10 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
     }
 
     @Override
-    protected void setPlayerPlayingEmoteImpl(UUID player, @Nullable KeyframeAnimation emoteData, int tick, boolean isForced) {
-        if (emoteData != null) {
-            EmotePacket packet = new EmotePacket.Builder()
-                    .configureToStreamEmote(emoteData)
-                    .configureEmoteTick(tick)
-                    .build();
-
-            streamEmote(packet.data, getPlayerFromUUID(player), isForced, false);
+    protected void setPlayerPlayingEmoteImpl(UUID player, @Nullable PlayingAnimationData data) {
+        if (data != null) {
+            EmotePacket packet = data.preparePacket().build();
+            streamEmote(packet.data, getPlayerFromUUID(player), data.forced(), false);
         } else {
             stopEmote(getPlayerFromUUID(player), null);
         }
