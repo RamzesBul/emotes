@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +36,8 @@ public class EmotePacket {
         defaultVersions.put(tmp.getID(), tmp.getVer());
         tmp = new EmoteIconPacket();
         defaultVersions.put(tmp.getID(), tmp.getVer());
+        tmp = new TimeDataPacket();
+        defaultVersions.put(tmp.getID(), tmp.getVer());
     }
 
     public final NetHashMap subPackets = new NetHashMap();
@@ -60,6 +63,7 @@ public class EmotePacket {
         subPackets.put(new SongPacket());
         subPackets.put(new EmoteHeaderPacket());
         subPackets.put(new EmoteIconPacket());
+        subPackets.put(new TimeDataPacket());
     }
 
     //Write packet to a new ByteBuf
@@ -207,6 +211,11 @@ public class EmotePacket {
             if(sizeLimit <= 0)throw new IllegalArgumentException("Size limit must be positive");
             data.sizeLimit = sizeLimit;
             data.strictSizeLimit = strict;
+            return this;
+        }
+
+        public Builder setStartTime(Instant instant) {
+            this.data.startTime = instant.toEpochMilli();
             return this;
         }
 

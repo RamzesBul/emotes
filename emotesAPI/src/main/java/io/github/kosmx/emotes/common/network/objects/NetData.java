@@ -5,6 +5,8 @@ import io.github.kosmx.emotes.common.CommonData;
 import io.github.kosmx.emotes.common.network.PacketTask;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -46,6 +48,7 @@ public final class NetData {
     //On play, it can not be stopped by the player
     //On stop, the server stops it not because invalid but because event stopped it
     public boolean isForced = false;
+    public long startTime = -1;
 
     /**
      * net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket#MAX_PAYLOAD_SIZE
@@ -86,7 +89,19 @@ public final class NetData {
         data.player = player;
         data.sizeLimit = sizeLimit;
         data.isForced = isForced;
+        data.startTime = startTime;
         return data;
+    }
+
+    public Instant startInstant() {
+        if (this.startTime < 0) {
+            return null; // Not set
+        }
+        Instant instant = Instant.ofEpochMilli(this.startTime);
+        if (instant.isAfter(Instant.now())) {
+            return null; // from the future?
+        }
+        return instant;
     }
 
     @Override
@@ -97,6 +112,7 @@ public final class NetData {
                 ", stopEmoteID=" + stopEmoteID +
                 ", emoteData=" + emoteData +
                 ", startingAt=" + tick +
+                ", startTime=" + startTime +
                 ", player=" + player +
                 '}';
     }

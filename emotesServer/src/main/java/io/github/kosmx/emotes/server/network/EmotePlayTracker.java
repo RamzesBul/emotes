@@ -1,11 +1,9 @@
 package io.github.kosmx.emotes.server.network;
 
-
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import dev.kosmx.playerAnim.core.util.Pair;
 
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import org.jetbrains.annotations.Nullable;
-import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -19,23 +17,31 @@ import java.time.Instant;
 public class EmotePlayTracker {
 
     private KeyframeAnimation currentEmote = null;
+    private int tick;
 
     private Instant startTime = null;
 
     private boolean isForced = false;
 
+    public void removePlayedEmote() {
+        setPlayedEmote(null, 0, null, false);
+    }
+
     /**
      * Set the currently played emote.
      * @param data Emote, null if stop playing
      */
-    public void setPlayedEmote(@Nullable KeyframeAnimation data, boolean isForced) {
-        currentEmote = data;
+    public void setPlayedEmote(@Nullable KeyframeAnimation data, int tick, @Nullable Instant startTime, boolean isForced) {
+        this.currentEmote = data;
+        this.tick = tick;
         if (data == null) {
-            startTime = null;
+            this.startTime = null;
             this.isForced = false;
-        }
-        else {
-            startTime = Instant.now();
+        } else {
+            if (startTime == null || !isPlayingAt(startTime)) {
+                startTime = Instant.now();
+            }
+            this.startTime = startTime;
             this.isForced = isForced;
         }
     }
@@ -58,16 +64,24 @@ public class EmotePlayTracker {
      * @return null if not playing emote
      */
     @Nullable
-    public Pair<KeyframeAnimation, Integer> getPlayedEmote() {
+    public PlayingAnimationData getPlayedEmote() {
         if (currentEmote == null) return null;
-        int tick = (int)(Duration.between(startTime, Instant.now()).toMillis() / 50);
-        if (!currentEmote.isInfinite() && currentEmote.getLength() <= tick) {
+        Instant newStartTime = Instant.now();
+        int tick = PlayingAnimationData.calculateTick(startTime, newStartTime) + this.tick;
+        if (!currentEmote.isPlayingAt(tick)) {
             currentEmote = null;
             startTime = null;
             isForced = false;
             return null;
         }
-        return new Pair<>(currentEmote, tick);
+        return new PlayingAnimationData(this.currentEmote, tick, newStartTime, this.isForced);
     }
 
+    public boolean isPlayingAt(Instant instant) {
+        if (this.currentEmote == null) {
+            return false;
+        }
+        int tick = PlayingAnimationData.calculateTick(instant, Instant.now()) + this.tick;
+        return this.currentEmote.isPlayingAt(tick);
+    }
 }

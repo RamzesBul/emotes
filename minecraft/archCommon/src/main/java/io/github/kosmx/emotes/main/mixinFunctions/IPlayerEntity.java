@@ -1,8 +1,7 @@
 package io.github.kosmx.emotes.main.mixinFunctions;
 
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import dev.kosmx.playerAnim.core.util.Pair;
 import io.github.kosmx.emotes.api.events.client.ClientEmoteEvents;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.executor.EmoteInstance;
 import io.github.kosmx.emotes.executor.emotePlayer.IEmotePlayerEntity;
 import io.github.kosmx.emotes.inline.TmpGetters;
@@ -12,6 +11,8 @@ import io.github.kosmx.emotes.main.emotePlay.EmotePlayer;
 import io.github.kosmx.emotes.main.network.ClientEmotePlay;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.time.Instant;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -22,11 +23,11 @@ public interface IPlayerEntity extends IEmotePlayerEntity {
     Supplier<Integer> TPBPerspective = () -> (((ClientConfig)EmoteInstance.config).frontAsTPPerspective.get() ? 2 : 1);
 
     default void initEmotePlay(){
-
-        Pair<KeyframeAnimation, Integer> p = ClientEmotePlay.getEmoteForUUID(this.emotes_getUUID());
-        if(p != null){
-            ClientEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(p.getLeft(), p.getRight(), this.emotes_getUUID());
-            this.emotecraft$playEmote(p.getLeft(), p.getRight(), false);
+        PlayingAnimationData data = ClientEmotePlay.getEmoteForUUID(this.emotes_getUUID());
+        if(data != null){
+            int tick = data.calculatedTick(Instant.now());
+            ClientEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(data.currentEmote(), tick, this.emotes_getUUID());
+            this.emotecraft$playEmote(data.currentEmote(), tick, data.forced());
         }
         if(!this.isMainPlayer() && TmpGetters.getClientMethods().getMainPlayer() != null && TmpGetters.getClientMethods().getMainPlayer().isPlayingEmote()){
             IPlayerEntity playerEntity = TmpGetters.getClientMethods().getMainPlayer();

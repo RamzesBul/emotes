@@ -215,8 +215,12 @@ public class EmoteHolder implements Supplier<UUID> {
      * @return could be played
      */
     public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick) {
+        return EmoteHolder.playEmote(emote, player, tick, false);
+    }
+
+    public static boolean playEmote(KeyframeAnimation emote, IEmotePlayerEntity player, int tick, boolean time) {
         if(canPlayEmote(player)){
-            return ClientEmotePlay.clientStartLocalEmote(emote, tick);
+            return ClientEmotePlay.clientStartLocalEmote(emote, tick, time);
         }else{
             return false;
         }
@@ -246,7 +250,11 @@ public class EmoteHolder implements Supplier<UUID> {
     }
 
     public boolean playEmote(IEmotePlayerEntity playerEntity, int tick) {
-        return playEmote(this.emote, playerEntity, tick);
+        return playEmote(playerEntity, tick, false);
+    }
+
+    public boolean playEmote(IEmotePlayerEntity playerEntity, int tick, boolean time) {
+        return playEmote(this.emote, playerEntity, tick, time);
     }
 
     /**

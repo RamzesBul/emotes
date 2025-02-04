@@ -4,8 +4,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.impl.event.EventResult;
-import dev.kosmx.playerAnim.core.util.Pair;
 import dev.kosmx.playerAnim.core.util.UUIDMap;
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import io.github.kosmx.emotes.api.events.server.ServerEmoteAPI;
 import io.github.kosmx.emotes.api.events.server.ServerEmoteEvents;
 import io.github.kosmx.emotes.api.proxy.AbstractNetworkInstance;
@@ -162,7 +162,7 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
      * @param player source player
      */
     protected void streamEmote(NetData data, P player, boolean isForced, boolean isFromPlayer) {
-        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(data.emoteData, isForced);
+        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(data.emoteData, data.tick, data.startInstant(), isForced);
         ServerEmoteEvents.EMOTE_PLAY.invoker().onEmotePlay(data.emoteData, data.tick, getUUIDFromPlayer(player));
         data.isForced = isForced;
         data.player = getUUIDFromPlayer(player);
@@ -181,11 +181,11 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
     }
 
     protected void stopEmote(P player, @Nullable NetData originalMessage) {
-        Pair<KeyframeAnimation, Integer> emote = getPlayerNetworkInstance(player).getEmoteTracker().getPlayedEmote();
-        getPlayerNetworkInstance(player).getEmoteTracker().setPlayedEmote(null, false);
+        PlayingAnimationData emote = getPlayerNetworkInstance(player).getEmoteTracker().getPlayedEmote();
+        getPlayerNetworkInstance(player).getEmoteTracker().removePlayedEmote();
         if (emote != null) {
-            ServerEmoteEvents.EMOTE_STOP_BY_USER.invoker().onStopEmote(emote.getLeft().getUuid(), getUUIDFromPlayer(player));
-            NetData data = new EmotePacket.Builder().configureToSendStop(emote.getLeft().getUuid(), getUUIDFromPlayer(player)).build().data;
+            ServerEmoteEvents.EMOTE_STOP_BY_USER.invoker().onStopEmote(emote.currentEmote().getUuid(), getUUIDFromPlayer(player));
+            NetData data = new EmotePacket.Builder().configureToSendStop(emote.currentEmote().getUuid(), getUUIDFromPlayer(player)).build().data;
 
             sendForEveryoneElse(data, null, player);
             if (originalMessage == null) { //If the stop is not from the player, server needs to notify the player too
@@ -208,9 +208,9 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
 
     public void playerStartTracking(P tracked, P tracker) {
         if (tracked == null || tracker == null) return;
-        Pair<KeyframeAnimation, Integer> playedEmote = getPlayerNetworkInstance(tracked).getEmoteTracker().getPlayedEmote();
+        PlayingAnimationData playedEmote = getPlayerNetworkInstance(tracked).getEmoteTracker().getPlayedEmote();
         if (playedEmote != null) {
-            sendForPlayer(new EmotePacket.Builder().configureToStreamEmote(playedEmote.getLeft()).configureEmoteTick(playedEmote.getRight()).configureTarget(getUUIDFromPlayer(tracked)).build().data, tracked, getUUIDFromPlayer(tracker));
+            sendForPlayer(playedEmote.preparePacket().configureTarget(getUUIDFromPlayer(tracked)).build().data, tracked, getUUIDFromPlayer(tracker));
         }
     }
 
@@ -229,7 +229,7 @@ public abstract class AbstractServerEmotePlay<P> extends ServerEmoteAPI {
     }
 
     @Override
-    protected Pair<KeyframeAnimation, Integer> getPlayedEmoteImpl(UUID player) {
+    protected PlayingAnimationData getPlayedEmoteImpl(UUID player) {
         return getPlayerNetworkInstance(getPlayerFromUUID(player)).getEmoteTracker().getPlayedEmote();
     }
 

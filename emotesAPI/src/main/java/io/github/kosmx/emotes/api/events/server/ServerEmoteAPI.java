@@ -1,9 +1,9 @@
 package io.github.kosmx.emotes.api.events.server;
 
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import dev.kosmx.playerAnim.core.util.Pair;
 import dev.kosmx.playerAnim.core.util.UUIDMap;
 
+import io.github.kosmx.emotes.api.PlayingAnimationData;
 import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -79,7 +79,7 @@ public abstract class ServerEmoteAPI {
      * @return Emote and time, NULL if not playing
      */
     @Nullable
-    public static Pair<KeyframeAnimation, Integer> getPlayedEmote(UUID player) {
+    public static PlayingAnimationData getPlayedEmote(UUID player) {
         return INSTANCE.getPlayedEmoteImpl(player);
     }
 
@@ -148,7 +148,7 @@ public abstract class ServerEmoteAPI {
     protected static ServerEmoteAPI INSTANCE;
 
     protected abstract void setPlayerPlayingEmoteImpl(UUID player, @Nullable KeyframeAnimation KeyframeAnimation, int tick, boolean isForced);
-    protected abstract Pair<KeyframeAnimation, Integer> getPlayedEmoteImpl(UUID player);
+    protected abstract PlayingAnimationData getPlayedEmoteImpl(UUID player);
 
     protected abstract boolean isForcedEmoteImpl(UUID player);
 

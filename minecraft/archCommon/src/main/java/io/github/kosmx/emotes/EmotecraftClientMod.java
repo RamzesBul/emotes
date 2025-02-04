@@ -55,7 +55,7 @@ public class EmotecraftClientMod {
             }
 
             if (PLAY_SAME_ANIM_KEY.consumeClick()) {
-                sameHolder.playEmote(minecraft.player, emotePlayer.getTick());
+                sameHolder.playEmote(minecraft.player, emotePlayer.getTick(), true);
             } else if (!minecraft.player.isPlayingEmote()) {
                 minecraft.gui.setOverlayMessage(Component.translatable("key.emotecraft.playsameanim.subtitle",
                         PLAY_SAME_ANIM_KEY.getTranslatedKeyMessage()
