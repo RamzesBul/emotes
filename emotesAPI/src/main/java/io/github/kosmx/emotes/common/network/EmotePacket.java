@@ -208,7 +208,9 @@ public class EmotePacket {
         }
 
         public Builder setSizeLimit(int sizeLimit, boolean strict){
-            if(sizeLimit <= 0)throw new IllegalArgumentException("Size limit must be positive");
+            if (sizeLimit <= 0) {
+                throw new IllegalArgumentException("Size limit must be positive");
+            }
             data.sizeLimit = sizeLimit;
             data.strictSizeLimit = strict;
             return this;
@@ -221,7 +223,9 @@ public class EmotePacket {
         }
 
         public Builder configureToStreamEmote(KeyframeAnimation emoteData, @Nullable UUID player){
-            if(data.purpose != PacketTask.UNKNOWN)throw new IllegalArgumentException("Can's send and stop emote at the same time");
+            if (data.purpose != PacketTask.UNKNOWN && data.purpose != PacketTask.STREAM) {
+                throw new IllegalArgumentException("Can's send and stop emote at the same time");
+            }
             data.purpose = PacketTask.STREAM;
             data.emoteData = emoteData;
             data.player = player;
@@ -229,7 +233,9 @@ public class EmotePacket {
         }
 
         public Builder configureToSaveEmote(KeyframeAnimation emoteData){
-            if(data.purpose != PacketTask.UNKNOWN)throw new IllegalArgumentException("already configured?!");
+            if (data.purpose != PacketTask.UNKNOWN && data.purpose != PacketTask.FILE) {
+                throw new IllegalArgumentException("already configured?!");
+            }
             data.purpose = PacketTask.FILE;
             data.sizeLimit = Integer.MAX_VALUE;
             data.emoteData = emoteData;
@@ -251,7 +257,9 @@ public class EmotePacket {
         }
 
         public Builder configureToSendStop(UUID emoteID, @Nullable UUID player){
-            if(data.purpose != PacketTask.UNKNOWN)throw new IllegalArgumentException("Can't send emote and stop at the same time");
+            if (data.purpose != PacketTask.UNKNOWN && data.purpose != PacketTask.STOP) {
+                throw new IllegalArgumentException("Can't send emote and stop at the same time");
+            }
             data.purpose = PacketTask.STOP;
             data.stopEmoteID = emoteID;
             data.player = player;
@@ -263,7 +271,9 @@ public class EmotePacket {
         }
 
         public Builder configureToConfigExchange(boolean songEnabled){
-            if(data.purpose != PacketTask.UNKNOWN)throw new IllegalArgumentException("Can't send config with emote or stop data...");
+            if (data.purpose != PacketTask.UNKNOWN && data.purpose != PacketTask.CONFIG) {
+                throw new IllegalArgumentException("Can't send config with emote or stop data...");
+            }
             data.purpose = PacketTask.CONFIG;
             HashMap<Byte, Byte> versions = new HashMap<>(EmotePacket.defaultVersions);
             if(!songEnabled){

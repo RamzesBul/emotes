@@ -51,8 +51,7 @@ public record PlayingAnimationData(KeyframeAnimation currentEmote, int tick, Ins
         return currentEmote().isPlayingAt(calculatedTick(time));
     }
 
-    private static int calculateTick(Temporal startTime, Temporal newStartTime) {
-        int between = (int) Duration.between(startTime, newStartTime).toMillis();
-        return between / 50;
+    public static int calculateTick(Temporal startTime, Temporal newStartTime) {
+        return (int)(Duration.between(startTime, newStartTime).toMillis() / 50);
     }
 }

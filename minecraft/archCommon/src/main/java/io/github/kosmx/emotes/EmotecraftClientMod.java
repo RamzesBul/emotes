@@ -15,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.EntityHitResult;
 import org.lwjgl.glfw.GLFW;
 
-import java.time.Instant;
+import java.util.Objects;
 
 public class EmotecraftClientMod {
     public static final KeyMapping OPEN_MENU_KEY = new KeyMapping(
@@ -57,7 +57,7 @@ public class EmotecraftClientMod {
             }
 
             if (PLAY_SAME_ANIM_KEY.consumeClick()) {
-                sameHolder.playEmote(minecraft.player, emotePlayer.calculatedTick(Instant.now()), true);
+                sameHolder.playEmote(minecraft.player, Objects.requireNonNull(player.emotecraft$getEmote()).getTick(), true);
             } else if (!minecraft.player.isPlayingEmote()) {
                 minecraft.gui.setOverlayMessage(Component.translatable("key.emotecraft.playsameanim.subtitle",
                         PLAY_SAME_ANIM_KEY.getTranslatedKeyMessage()

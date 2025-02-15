@@ -70,6 +70,11 @@ public final class NetData {
             emoteData = emoteBuilder.build();
         }
 
+        if (this.startTime < 0) { // Not set
+            this.startTime = Instant.now().toEpochMilli();
+            this.offsetTime = false; // Invalid time
+        }
+
         if(purpose == PacketTask.UNKNOWN)return false;
         if(purpose == PacketTask.STOP && stopEmoteID == null)return false;
         if(purpose == PacketTask.STREAM && emoteData == null)return false;
@@ -92,19 +97,18 @@ public final class NetData {
         data.sizeLimit = sizeLimit;
         data.isForced = isForced;
         data.startTime = startTime;
+        data.offsetTime = offsetTime;
         return data;
     }
 
     public Instant startInstant() {
-        if (this.startTime < 0) {
-            this.offsetTime = false;
-            return Instant.now(); // Not set
-        }
         Instant instant = Instant.ofEpochMilli(this.startTime);
-        if (instant.isAfter(Instant.now())) {
+        /*if (instant.isAfter(Instant.now())) {
             this.offsetTime = false;
-            return Instant.now(); // from the future?
-        }
+            this.startTime = now.toEpochMilli();
+
+            return now; // from the future?
+        }*/
         return instant;
     }
 
@@ -117,6 +121,7 @@ public final class NetData {
                 ", emoteData=" + emoteData +
                 ", startingAt=" + tick +
                 ", startTime=" + startTime +
+                ", offsetTime=" + offsetTime +
                 ", player=" + player +
                 '}';
     }
