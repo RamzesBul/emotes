@@ -49,6 +49,11 @@ dependencies {
         pomCompile(this)
     }
 
+    modImplementation("io.github.ramzesbul.bendy-lib:bendy-lib-fabric:${properties["bendylib_version"] as String}") {
+        include(this)
+        pomCompile(this)
+    }
+
     implementation("net.raphimc:NoteBlockLib:${properties["noteblocklib_version"] as String}") {
         include(this)
         pomCompile(this)

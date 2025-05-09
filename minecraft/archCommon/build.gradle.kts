@@ -16,6 +16,7 @@ dependencies {
 
     modApi("dev.kosmx.player-anim:player-animation-lib:${properties["player_animator_version"] as String}")
     modImplementation("dev.kosmx.player-anim:anim-core:${properties["player_animator_version"] as String}")
+    modImplementation("io.github.ramzesbul.bendy-lib:bendy-lib:${properties["bendylib_version"] as String}")
 
     // Third-party
     compileOnly("com.blamejared.searchables:Searchables-common-${minecraft_version}:${properties["searchables_version"] as String}") {
